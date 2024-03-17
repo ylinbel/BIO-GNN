@@ -57,7 +57,8 @@ class DGN(torch.nn.Module):
         nn = Sequential(Linear(self.model_params["Linear3"]["in"], self.model_params["Linear3"]["out"]), ReLU())
         self.conv3 = NNConv(self.model_params["conv3"]["in"], self.model_params["conv3"]["out"], nn, aggr='mean')
         
-        self.W_out = torch.nn.Parameter(torch.randn(self.model_params["N_ROIs"], self.model_params["N_ROIs"] + 1), requires_grad=True)
+        # self.W_out = torch.nn.Parameter(torch.randn(self.model_params["N_ROIs"], self.model_params["N_ROIs"] + 1), requires_grad=True)
+        
         
     def forward(self, data):
         """
@@ -119,24 +120,6 @@ class DGN(torch.nn.Module):
         final_cbt = torch.tensor(np.median(cbts, axis = 0), dtype = torch.float32).to(device)
         
         return final_cbt   
-    
-    @staticmethod
-    def w_out_error(generated_cbt, x_train, y_train):
-        normalized_cbt = helper.normalize_matrix(generated_cbt.numpy())
-        esn = ESNRegressor(
-            spectral_radius=0.99,
-            input_scaling=1e-6,
-            leak_rate=1,
-            bias=0,
-            W=normalized_cbt,
-            store_states_train=True,
-        )
-        esn.fit(X=x_train, y=y_train)
-        
-        y_hat = esn.activation_out(torch.tensor(esn.states_train_, dtype=torch.float32) @ generated_cbt.detach().numpy())
-        w_out_loss = torch.mean((torch.tensor(y_hat, dtype=torch.float32) - torch.tensor(y_train, dtype=torch.float32)) ** 2)
-        
-        return w_out_loss
      
     @staticmethod
     def mean_frobenious_distance(generated_cbt, test_data):
@@ -157,6 +140,34 @@ class DGN(torch.nn.Module):
                 frobenius_all.append(d)
         return sum(frobenius_all) / len(frobenius_all)
     
+    
+    @staticmethod
+    def reservoir_error(generated_cbt, data, return_fingerprint=False, reservoir_model=None):
+        normalized_cbt = helper.normalize_matrix(generated_cbt.numpy())
+        esn = ESNRegressor(
+            spectral_radius=0.99,
+            input_scaling=1e-6,
+            leak_rate=1,
+            bias=0,
+            W=normalized_cbt,
+            store_states_train=True,
+        )
+        esn.fit(X=data["X_train"], y=data["Y_train"])
+        
+        if reservoir_model:
+            y_hat = reservoir_model(torch.tensor(esn.full_states_, dtype=torch.float32))
+        else:
+            y_hat = torch.tensor(esn.states_train_, dtype=torch.float32) @ generated_cbt.detach().numpy()
+       
+        reservoir_loss = torch.mean((y_hat - torch.tensor(data["Y_train"], dtype=torch.float32)) ** 2)
+        
+        if return_fingerprint:
+            y_pred = esn.predict(data["X_test"])
+            fingerprint = helper.memory_capacity_cul_sum(data["Y_test"], y_pred)
+            return reservoir_loss, fingerprint
+                
+        return reservoir_loss
+    
     @staticmethod
     def biological_fingerprint(generated_cbt, x_train, y_train, x_test, y_test):
         normalized_cbt = helper.normalize_matrix(generated_cbt.numpy())
@@ -166,13 +177,29 @@ class DGN(torch.nn.Module):
             leak_rate=1,
             bias=0,
             W=normalized_cbt,
-            # store_states_train=True,
-            # regression_method="ridge",
         )
-        esn.fit(X=x_train, y=y_train)
+        esn.fit(X=x_train, y=y_train)  
         y_pred = esn.predict(x_test)
         fingerprint = helper.memory_capacity_cul_sum(y_test, y_pred)
         return fingerprint
+    
+    
+    @staticmethod
+    def biological_loss(median_fingerprint, reservoir_data, test_data):
+        biological_loss_all = []
+        
+        for data in test_data:
+            views = data.con_mat
+            for index in range(views.shape[2]):
+                biological_fingerprint = DGN.biological_fingerprint(views[:,:,index], reservoir_data["X_train"], reservoir_data["Y_train"], reservoir_data["X_test"], reservoir_data["Y_test"])
+                diff = np.abs(biological_fingerprint - median_fingerprint)
+                biological_loss_all.append(diff)
+            
+        return sum(biological_loss_all) / len(biological_loss_all)
+    
+    @staticmethod
+    def print_grad(grad):
+        print(grad)
     
     @staticmethod
     def train_model(X, model_params, n_max_epochs, early_stop, model_name, random_sample_size = 10, n_folds = 5):
@@ -202,8 +229,6 @@ class DGN(torch.nn.Module):
         CBTs = []
         scores = []
         
-        lambda1 = 300
-        lambda2 = 10 
         for i in range(n_folds):
             torch.cuda.empty_cache() 
             print("********* FOLD {} *********".format(i))
@@ -217,22 +242,31 @@ class DGN(torch.nn.Module):
             model = DGN(model_params)
             model = model.to(device)
             
+            
             # cbt loss stop training
             cbt_loss_history = []
             cbt_loss_converged = False
             cbt_convergence_threshold = 0.01
             cbt_patience = 3
-            bio_patience = 3
             min_reservoir_loss = float('inf')
             min_bio_loss = float('inf')
             
             cbt_loss_weight = 1.0
-            reservoir_loss_weight = 100.0
+            reservoir_loss_weight = float(model_params["lambda1"])
             prev_cbt_loss_avg = float('inf')
             loss_weight_adjustment_factor = 5 
             
             # W_out loss setup
-            reservoir_model = LinearRegressionModel(36, 1).to(device)
+            reservoir_model = LinearRegressionModel(36, 35).to(device)
+            
+            # weight_params = [param for name, param in model.named_parameters() if 'weight' in name]
+            # reservoir_weight_params = [param for name, param in reservoir_model.named_parameters() if 'weight' in name]
+
+            # # Combine the weight parameters from both models
+            # optimizer_params = weight_params + reservoir_weight_params
+
+            # # Create the optimizer with the selected parameters
+            # optimizer = torch.optim.AdamW(optimizer_params, lr=model_params["learning_rate"], weight_decay=0.00)
             
             optimizer = torch.optim.AdamW(list(model.parameters()) + list(reservoir_model.parameters()), lr=model_params["learning_rate"], weight_decay= 0.00)
 
@@ -243,16 +277,20 @@ class DGN(torch.nn.Module):
             test_errors = []
             tick = time.time()
             
-            x_train, y_train, x_test, y_test = helper.generate_data()
+            np.random.seed(35811)
+            train_reservoir_data = helper.generate_data()
+            np.random.seed(35812)
+            test_reservoir_data = helper.generate_data()
             
             for epoch in range(n_max_epochs):
                 model.train()
-                biological_fingerprints = []
-                w_out_losses = []
+                
                 cbt_losses = [] 
-                bio_losses = []
-                total_loss = 0
-                for data in test_casted:
+                bio_losses = [0]
+                total_losses = []
+                curr_loss = 0
+                
+                for data in train_casted:
                     # loss of cbt
                     #Compose Dissimilarity matrix from network outputs
                     cbt = model(data)
@@ -276,28 +314,34 @@ class DGN(torch.nn.Module):
                         W=cbt_normalized,
                         store_states_train=True,
                     )
-                    esn.fit(X=x_train, y=y_train)
+                    esn.fit(X=train_reservoir_data["X_train"], y=train_reservoir_data["Y_train"])
                     
-                    reservoir_output = reservoir_model(torch.tensor(esn.full_states_, dtype=torch.float32))
-                    w_out_loss = torch.mean((reservoir_output - torch.tensor(y_train, dtype=torch.float32, device=device)) ** 2)
-                    w_out_losses.append(w_out_loss.item())
+                    reservoir_output = reservoir_model(torch.tensor(esn.full_states_, dtype=torch.float32, requires_grad=True))
                     
-                    # biological loss
-                    y_pred = esn.predict(x_test)
-                    fingerprint = helper.memory_capacity_cul_sum(y_test, y_pred)
-                    biological_fingerprints.append(fingerprint)
+                    # print("predicted", reservoir_output)
+                    # print("actual", train_reservoir_data["Y_train"])
+                    
+                    # input_tensor = torch.tensor(esn.full_states_, dtype=torch.float32, requires_grad=True)
+                    # hook = input_tensor.register_hook(DGN.print_grad)
+                    # reservoir_output = reservoir_model(input_tensor)
+
+                    reservoir_loss = torch.mean((reservoir_output - torch.tensor(train_reservoir_data["Y_train"], dtype=torch.float32, device=device)) ** 2)
+                    # print("reservoir_output", reservoir_output.shape)
+                    # print("full_states_", esn.full_states_.shape)
+                    # print("y_pred", train_reservoir_data["Y_train"].shape)
                     
                     if not cbt_loss_converged:
-                        # total_loss += (cbt_loss + lambda1 * w_out_loss)
-                        total_loss = cbt_loss_weight * cbt_loss + reservoir_loss_weight * w_out_loss
-                    total_loss += w_out_loss
-                    
-                    cbt_losses.append(cbt_loss.item())
-                    
+                        curr_loss = cbt_loss_weight * cbt_loss + reservoir_loss_weight * reservoir_loss
+                        # print("reservoir_loss", reservoir_loss_weight * reservoir_loss)
+                    else:
+                        curr_loss = reservoir_loss_weight * reservoir_loss
+                        # print("reservoir_loss", reservoir_loss_weight * reservoir_loss)
+                        
+                                        
             	#Backprob                
                 avg_cbt_loss = sum(cbt_losses) / len(cbt_losses)
                 cbt_loss_history.append(avg_cbt_loss)
-                if len(cbt_loss_history) > cbt_patience:
+                if len(cbt_loss_history) > model_params["patience"]:
                     recent_cbt_loss_improvement = cbt_loss_history[-cbt_patience] - cbt_loss_history[-1]
                     if recent_cbt_loss_improvement < cbt_convergence_threshold:
                         cbt_loss_converged = True
@@ -308,33 +352,27 @@ class DGN(torch.nn.Module):
                     reservoir_loss_weight /= loss_weight_adjustment_factor
                     
                 
-                optimizer.zero_grad()                
-                total_loss.backward()                
-                optimizer.step()
-                
                 #Track the loss
                 if epoch % 10 == 0:
                     if cbt_loss_converged:
                         print("CBT loss has converged.")
-                    cbt = DGN.generate_cbt_median(model, test_casted)
-                    rep_loss = DGN.mean_frobenious_distance(cbt, train_casted)
-                    w_out_loss = DGN.w_out_error(cbt, x_train, y_train)
-                    w_out_loss = round(np.mean(w_out_losses), 4)
-                    w_out_losses.clear()
-                    cbt_fingerprint = DGN.biological_fingerprint(cbt, x_train, y_train, x_test, y_test) 
+                    cbt = DGN.generate_cbt_median(model, train_casted)
+                    rep_loss = DGN.mean_frobenious_distance(cbt, test_casted)
+                    reservoir_loss, median_fingerprint = DGN.reservoir_error(cbt, train_reservoir_data, return_fingerprint=True, reservoir_model=reservoir_model)
                     
-                    bio_loss = ((biological_fingerprints - cbt_fingerprint) ** 2).mean()
-                    bio_losses.append(bio_loss.item())
-                    biological_fingerprints.clear()
+                    #bio loss
+                    bio_loss = DGN.biological_loss(median_fingerprint, test_reservoir_data, test_casted)
+                    bio_losses.append(bio_loss)
+                    
                     tock = time.time()
                     time_elapsed = tock - tick
                     tick = tock
                     rep_loss = float(rep_loss)
                     
-                    current_error = rep_loss + w_out_loss * lambda1 + bio_loss * lambda2
+                    current_error = rep_loss + reservoir_loss * model_params["lambda1"] + bio_loss * model_params["lambda2"]
                     test_errors.append(current_error)
-                    print("Epoch: {}  |  cbt loss : {:.2f} | reservoir loss : {:.4f} | bio loss : {:.5f} | total loss: {:.2f} | median cbt mc {:.2f} | Time Elapsed: {:.2f} | ".format(epoch, rep_loss, w_out_loss, bio_loss * lambda2, current_error, cbt_fingerprint, time_elapsed))
-
+                    print("Epoch: {}  |  cbt loss : {:.2f} | reservoir loss : {:.4f} | bio loss : {:.5f} | total loss: {:.2f} | median cbt mc {:.2f} | Time Elapsed: {:.2f} | ".format(epoch, rep_loss, reservoir_loss, bio_loss, current_error, median_fingerprint, time_elapsed))
+                
                     if cbt_loss_converged:
                         # Early stopping controls
                         bio_improved = False
@@ -344,8 +382,8 @@ class DGN(torch.nn.Module):
                         
                         # Check for improvement in reservoir loss
                         reservoir_improved = False
-                        if w_out_loss < min_reservoir_loss:
-                            min_reservoir_loss = w_out_loss
+                        if reservoir_loss < min_reservoir_loss:
+                            min_reservoir_loss = reservoir_loss
                             reservoir_improved = True
                         
                         # Save model if there's improvement in either loss
@@ -356,11 +394,32 @@ class DGN(torch.nn.Module):
                             no_improvement_count += 1
 
                         # Early stopping based on lack of improvement in both losses
-                        if no_improvement_count >= bio_patience:
+                        if no_improvement_count >= model_params["patience"]:
                             print("Early Stopping triggered based on lack of improvement in reservoir and biological losses.")
                             break
+                        
+                curr_loss += model_params["lambda2"] * bio_losses[-1]
+                total_losses.append(curr_loss)
                 
+                optimizer.zero_grad() 
+                curr_loss = torch.mean(torch.stack(total_losses))               
+                curr_loss.backward()                
+                optimizer.step()
                 
+            
+                # for name, param in reservoir_model.named_parameters():
+                #     if param.grad is not None:
+                #         print(f"{name} gradient norm: {param.grad.norm().item()}")
+                #     else:
+                #         print(f"{name} gradient: None")
+
+                
+                # for name, param in model.named_parameters():
+                #     if param.grad is not None:
+                #         print(f"{name} gradient: {param.grad.norm().item()}")
+                #     else:
+                #         print(f"{name} gradient: None")
+                          
         	#Restore best model so far
             try:
                 restore = "./temp/weight_" + model_id + "_" + str(min(test_errors))[:5] + ".model"
@@ -370,10 +429,19 @@ class DGN(torch.nn.Module):
             torch.save(model.state_dict(), save_path + "fold" + str(i) + ".model")
             models.append(model)
             #Generate and save refined CBT
-            cbt = DGN.generate_cbt_median(model, test_casted)
-            well_trained_memory_fingerprint = DGN.biological_fingerprint(cbt, x_train, y_train, x_test, y_test) 
+            cbt = DGN.generate_cbt_median(model, train_casted)
+            
+            # check the bio loss
+            median_cbt_fingerprint = DGN.biological_fingerprint(cbt, train_reservoir_data["X_train"], train_reservoir_data["Y_train"], train_reservoir_data["X_test"], train_reservoir_data["Y_test"]) 
+            bio_loss = DGN.biological_loss(median_cbt_fingerprint, test_reservoir_data, test_casted)
+            print("bio losses: {}".format(bio_loss))
+            
+        
             rep_loss = DGN.mean_frobenious_distance(cbt, test_casted)
-            w_out_loss = DGN.w_out_error(cbt, x_train, y_train)
+            reservoir_loss, well_trained_memory_fingerprint = DGN.reservoir_error(cbt, test_reservoir_data, return_fingerprint=True)
+            bio_loss = DGN.biological_loss(well_trained_memory_fingerprint, test_reservoir_data, test_casted)
+            # bio_loss = DGN.biological_loss(median_cbt_fingerprint, test_reservoir_data, test_casted)
+
             cbt = cbt.cpu().numpy()
             CBTs.append(cbt)
             np.save( save_path + "fold" + str(i) + "_cbt", cbt)
@@ -381,7 +449,7 @@ class DGN(torch.nn.Module):
             all_cbts = DGN.generate_subject_biased_cbts(model, test_casted)
             np.save(save_path + "fold" + str(i) + "_all_cbts", all_cbts)
             scores.append(float(rep_loss))
-            print("FINAL RESULTS  REP: {}, W_OUT: {}, Memory Fingerprint: {}".format(rep_loss, w_out_loss, well_trained_memory_fingerprint))
+            print("FINAL RESULTS  REP: {}, RESERVOIR LOSS: {}, MEMORY FINGERPRINT: {}".format(rep_loss, reservoir_loss, well_trained_memory_fingerprint))
             #Clean interim model weights
             helper.clear_dir(TEMP_FOLDER)
                         

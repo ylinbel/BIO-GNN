@@ -1,0 +1,178 @@
+********* FOLD 0 *********
+Epoch: 0  |  cbt loss : 26.92 | reservoir loss : 0.0937 | bio loss : 0.59640 | total loss: 75.48 | median cbt mc 10.01 | Time Elapsed: 35.46 | 
+Epoch: 10  |  cbt loss : 18.48 | reservoir loss : 0.0928 | bio loss : 0.57032 | total loss: 65.56 | median cbt mc 10.21 | Time Elapsed: 156.66 | 
+Epoch: 20  |  cbt loss : 15.49 | reservoir loss : 0.0926 | bio loss : 0.58194 | total loss: 63.10 | median cbt mc 10.27 | Time Elapsed: 108.04 | 
+Epoch: 30  |  cbt loss : 13.50 | reservoir loss : 0.0925 | bio loss : 0.58874 | total loss: 61.44 | median cbt mc 10.13 | Time Elapsed: 36.05 | 
+Epoch: 40  |  cbt loss : 12.60 | reservoir loss : 0.0925 | bio loss : 0.58971 | total loss: 60.58 | median cbt mc 10.26 | Time Elapsed: 36.26 | 
+Epoch: 50  |  cbt loss : 12.11 | reservoir loss : 0.0925 | bio loss : 0.57220 | total loss: 59.21 | median cbt mc 10.27 | Time Elapsed: 110.29 | 
+Epoch: 60  |  cbt loss : 11.75 | reservoir loss : 0.0925 | bio loss : 0.57588 | total loss: 59.03 | median cbt mc 10.23 | Time Elapsed: 105.56 | 
+Epoch: 70  |  cbt loss : 11.48 | reservoir loss : 0.0925 | bio loss : 0.56026 | total loss: 57.98 | median cbt mc 10.25 | Time Elapsed: 86.00 | 
+Epoch: 80  |  cbt loss : 11.33 | reservoir loss : 0.0925 | bio loss : 0.58202 | total loss: 58.92 | median cbt mc 10.07 | Time Elapsed: 34.00 | 
+Epoch: 90  |  cbt loss : 11.24 | reservoir loss : 0.0925 | bio loss : 0.57405 | total loss: 58.43 | median cbt mc 10.27 | Time Elapsed: 53.68 | 
+Epoch: 100  |  cbt loss : 11.18 | reservoir loss : 0.0925 | bio loss : 0.56068 | total loss: 57.71 | median cbt mc 10.27 | Time Elapsed: 35.41 | 
+Epoch: 110  |  cbt loss : 11.15 | reservoir loss : 0.0925 | bio loss : 0.59920 | total loss: 59.60 | median cbt mc 10.26 | Time Elapsed: 41.48 | 
+Epoch: 120  |  cbt loss : 11.12 | reservoir loss : 0.0925 | bio loss : 0.57876 | total loss: 58.55 | median cbt mc 10.26 | Time Elapsed: 37.92 | 
+CBT loss has converged.
+Epoch: 130  |  cbt loss : 11.10 | reservoir loss : 0.0925 | bio loss : 0.58519 | total loss: 58.85 | median cbt mc 10.26 | Time Elapsed: 38.79 | 
+CBT loss has converged.
+Epoch: 140  |  cbt loss : 11.10 | reservoir loss : 0.0925 | bio loss : 0.57213 | total loss: 58.20 | median cbt mc 10.23 | Time Elapsed: 41.13 | 
+CBT loss has converged.
+Epoch: 150  |  cbt loss : 11.10 | reservoir loss : 0.0925 | bio loss : 0.59289 | total loss: 59.24 | median cbt mc 10.25 | Time Elapsed: 38.11 | 
+CBT loss has converged.
+Epoch: 160  |  cbt loss : 11.10 | reservoir loss : 0.0925 | bio loss : 0.59412 | total loss: 59.30 | median cbt mc 10.25 | Time Elapsed: 38.52 | 
+CBT loss has converged.
+Epoch: 170  |  cbt loss : 11.10 | reservoir loss : 0.0925 | bio loss : 0.57208 | total loss: 58.20 | median cbt mc 10.26 | Time Elapsed: 40.04 | 
+CBT loss has converged.
+Epoch: 180  |  cbt loss : 11.10 | reservoir loss : 0.0925 | bio loss : 0.58918 | total loss: 59.05 | median cbt mc 10.25 | Time Elapsed: 37.54 | 
+CBT loss has converged.
+Epoch: 190  |  cbt loss : 11.10 | reservoir loss : 0.0925 | bio loss : 0.55742 | total loss: 57.46 | median cbt mc 10.24 | Time Elapsed: 37.89 | 
+CBT loss has converged.
+Epoch: 200  |  cbt loss : 11.10 | reservoir loss : 0.0925 | bio loss : 0.54889 | total loss: 57.04 | median cbt mc 10.26 | Time Elapsed: 42.04 | 
+CBT loss has converged.
+Epoch: 210  |  cbt loss : 11.10 | reservoir loss : 0.0925 | bio loss : 0.58113 | total loss: 58.65 | median cbt mc 10.25 | Time Elapsed: 41.80 | 
+CBT loss has converged.
+Epoch: 220  |  cbt loss : 11.10 | reservoir loss : 0.0925 | bio loss : 0.57199 | total loss: 58.19 | median cbt mc 10.25 | Time Elapsed: 47.95 | 
+CBT loss has converged.
+Epoch: 230  |  cbt loss : 11.10 | reservoir loss : 0.0925 | bio loss : 0.57438 | total loss: 58.31 | median cbt mc 10.27 | Time Elapsed: 47.99 | 
+Early Stopping triggered based on lack of improvement in reservoir and biological losses.
+bio losses: 0.555595553470463
+FINAL RESULTS  REP: 11.101778030395508, RESERVOIR LOSS: 0.08302844315767288, MEMORY FINGERPRINT: 10.445247788819199
+********* FOLD 1 *********
+Epoch: 0  |  cbt loss : 25.85 | reservoir loss : 0.0932 | bio loss : 0.83640 | total loss: 86.31 | median cbt mc 9.27 | Time Elapsed: 20.85 | 
+Epoch: 10  |  cbt loss : 19.75 | reservoir loss : 0.0923 | bio loss : 0.83028 | total loss: 79.73 | median cbt mc 9.27 | Time Elapsed: 56.63 | 
+Epoch: 20  |  cbt loss : 15.55 | reservoir loss : 0.0921 | bio loss : 0.60576 | total loss: 64.26 | median cbt mc 10.02 | Time Elapsed: 49.17 | 
+Epoch: 30  |  cbt loss : 12.96 | reservoir loss : 0.0920 | bio loss : 0.84998 | total loss: 73.86 | median cbt mc 9.28 | Time Elapsed: 62.80 | 
+Epoch: 40  |  cbt loss : 11.91 | reservoir loss : 0.0920 | bio loss : 0.64738 | total loss: 62.67 | median cbt mc 9.73 | Time Elapsed: 50.90 | 
+Epoch: 50  |  cbt loss : 11.48 | reservoir loss : 0.0920 | bio loss : 0.59534 | total loss: 59.64 | median cbt mc 10.27 | Time Elapsed: 62.13 | 
+Epoch: 60  |  cbt loss : 11.29 | reservoir loss : 0.0920 | bio loss : 0.58292 | total loss: 58.83 | median cbt mc 10.26 | Time Elapsed: 50.33 | 
+Epoch: 70  |  cbt loss : 11.25 | reservoir loss : 0.0919 | bio loss : 0.58672 | total loss: 58.97 | median cbt mc 10.26 | Time Elapsed: 49.18 | 
+Epoch: 80  |  cbt loss : 11.20 | reservoir loss : 0.0919 | bio loss : 0.58077 | total loss: 58.63 | median cbt mc 10.23 | Time Elapsed: 72.00 | 
+Epoch: 90  |  cbt loss : 11.12 | reservoir loss : 0.0919 | bio loss : 0.60651 | total loss: 59.84 | median cbt mc 10.27 | Time Elapsed: 64.60 | 
+Epoch: 100  |  cbt loss : 11.12 | reservoir loss : 0.0919 | bio loss : 0.58543 | total loss: 58.78 | median cbt mc 10.27 | Time Elapsed: 80.50 | 
+CBT loss has converged.
+Epoch: 110  |  cbt loss : 11.12 | reservoir loss : 0.0919 | bio loss : 0.60862 | total loss: 59.94 | median cbt mc 10.26 | Time Elapsed: 70.88 | 
+CBT loss has converged.
+Epoch: 120  |  cbt loss : 11.12 | reservoir loss : 0.0919 | bio loss : 0.59149 | total loss: 59.09 | median cbt mc 10.26 | Time Elapsed: 63.94 | 
+CBT loss has converged.
+Epoch: 130  |  cbt loss : 11.12 | reservoir loss : 0.0919 | bio loss : 0.58863 | total loss: 58.94 | median cbt mc 10.26 | Time Elapsed: 53.83 | 
+CBT loss has converged.
+Epoch: 140  |  cbt loss : 11.12 | reservoir loss : 0.0919 | bio loss : 0.59271 | total loss: 59.15 | median cbt mc 10.26 | Time Elapsed: 68.25 | 
+CBT loss has converged.
+Epoch: 150  |  cbt loss : 11.12 | reservoir loss : 0.0919 | bio loss : 0.61131 | total loss: 60.08 | median cbt mc 10.26 | Time Elapsed: 52.16 | 
+CBT loss has converged.
+Epoch: 160  |  cbt loss : 11.12 | reservoir loss : 0.0919 | bio loss : 0.61273 | total loss: 60.15 | median cbt mc 10.26 | Time Elapsed: 67.07 | 
+CBT loss has converged.
+Epoch: 170  |  cbt loss : 11.12 | reservoir loss : 0.0919 | bio loss : 0.59038 | total loss: 59.03 | median cbt mc 10.27 | Time Elapsed: 44.58 | 
+CBT loss has converged.
+Epoch: 180  |  cbt loss : 11.12 | reservoir loss : 0.0919 | bio loss : 0.59236 | total loss: 59.13 | median cbt mc 10.26 | Time Elapsed: 67.22 | 
+CBT loss has converged.
+Epoch: 190  |  cbt loss : 11.12 | reservoir loss : 0.0919 | bio loss : 0.58344 | total loss: 58.68 | median cbt mc 10.26 | Time Elapsed: 71.91 | 
+CBT loss has converged.
+Epoch: 200  |  cbt loss : 11.12 | reservoir loss : 0.0919 | bio loss : 0.57536 | total loss: 58.28 | median cbt mc 10.27 | Time Elapsed: 38.56 | 
+CBT loss has converged.
+Epoch: 210  |  cbt loss : 11.12 | reservoir loss : 0.0919 | bio loss : 0.59117 | total loss: 59.07 | median cbt mc 10.26 | Time Elapsed: 41.43 | 
+CBT loss has converged.
+Epoch: 220  |  cbt loss : 11.12 | reservoir loss : 0.0919 | bio loss : 0.59195 | total loss: 59.11 | median cbt mc 10.25 | Time Elapsed: 39.99 | 
+CBT loss has converged.
+Epoch: 230  |  cbt loss : 11.12 | reservoir loss : 0.0919 | bio loss : 0.59354 | total loss: 59.19 | median cbt mc 10.27 | Time Elapsed: 40.97 | 
+Early Stopping triggered based on lack of improvement in reservoir and biological losses.
+bio losses: 0.6055401079744079
+FINAL RESULTS  REP: 11.122064590454102, RESERVOIR LOSS: 0.08302844315767288, MEMORY FINGERPRINT: 10.429642443288751
+********* FOLD 2 *********
+Epoch: 0  |  cbt loss : 63.05 | reservoir loss : 0.0912 | bio loss : 0.85010 | total loss: 123.79 | median cbt mc 9.27 | Time Elapsed: 15.95 | 
+Epoch: 10  |  cbt loss : 41.81 | reservoir loss : 0.0905 | bio loss : 0.82052 | total loss: 100.93 | median cbt mc 9.27 | Time Elapsed: 40.18 | 
+Epoch: 20  |  cbt loss : 28.57 | reservoir loss : 0.0903 | bio loss : 0.84609 | total loss: 88.93 | median cbt mc 9.29 | Time Elapsed: 39.56 | 
+Epoch: 30  |  cbt loss : 20.21 | reservoir loss : 0.0902 | bio loss : 0.81236 | total loss: 78.86 | median cbt mc 9.27 | Time Elapsed: 39.59 | 
+Epoch: 40  |  cbt loss : 14.69 | reservoir loss : 0.0902 | bio loss : 0.81849 | total loss: 73.65 | median cbt mc 9.27 | Time Elapsed: 40.12 | 
+Epoch: 50  |  cbt loss : 12.20 | reservoir loss : 0.0902 | bio loss : 0.84427 | total loss: 72.44 | median cbt mc 9.28 | Time Elapsed: 38.96 | 
+Epoch: 60  |  cbt loss : 11.32 | reservoir loss : 0.0902 | bio loss : 0.56335 | total loss: 57.52 | median cbt mc 10.24 | Time Elapsed: 39.09 | 
+Epoch: 70  |  cbt loss : 11.20 | reservoir loss : 0.0902 | bio loss : 0.68269 | total loss: 63.37 | median cbt mc 9.50 | Time Elapsed: 40.60 | 
+Epoch: 80  |  cbt loss : 11.13 | reservoir loss : 0.0901 | bio loss : 0.56884 | total loss: 57.60 | median cbt mc 10.15 | Time Elapsed: 39.38 | 
+Epoch: 90  |  cbt loss : 11.12 | reservoir loss : 0.0901 | bio loss : 0.56947 | total loss: 57.62 | median cbt mc 10.26 | Time Elapsed: 40.21 | 
+Epoch: 100  |  cbt loss : 11.08 | reservoir loss : 0.0901 | bio loss : 0.57416 | total loss: 57.82 | median cbt mc 10.26 | Time Elapsed: 39.57 | 
+CBT loss has converged.
+Epoch: 110  |  cbt loss : 11.08 | reservoir loss : 0.0901 | bio loss : 0.58204 | total loss: 58.21 | median cbt mc 10.26 | Time Elapsed: 38.73 | 
+CBT loss has converged.
+Epoch: 120  |  cbt loss : 11.08 | reservoir loss : 0.0901 | bio loss : 0.57994 | total loss: 58.10 | median cbt mc 10.24 | Time Elapsed: 38.90 | 
+CBT loss has converged.
+Epoch: 130  |  cbt loss : 11.08 | reservoir loss : 0.0901 | bio loss : 0.59002 | total loss: 58.61 | median cbt mc 10.25 | Time Elapsed: 64.09 | 
+CBT loss has converged.
+Epoch: 140  |  cbt loss : 11.08 | reservoir loss : 0.0901 | bio loss : 0.58739 | total loss: 58.48 | median cbt mc 10.25 | Time Elapsed: 40.12 | 
+CBT loss has converged.
+Epoch: 150  |  cbt loss : 11.08 | reservoir loss : 0.0901 | bio loss : 0.57585 | total loss: 57.90 | median cbt mc 10.25 | Time Elapsed: 117.59 | 
+CBT loss has converged.
+Epoch: 160  |  cbt loss : 11.08 | reservoir loss : 0.0901 | bio loss : 0.83327 | total loss: 70.77 | median cbt mc 9.27 | Time Elapsed: 81.79 | 
+CBT loss has converged.
+Epoch: 170  |  cbt loss : 11.08 | reservoir loss : 0.0901 | bio loss : 0.58504 | total loss: 58.36 | median cbt mc 10.26 | Time Elapsed: 40.64 | 
+CBT loss has converged.
+Epoch: 180  |  cbt loss : 11.08 | reservoir loss : 0.0901 | bio loss : 0.58104 | total loss: 58.16 | median cbt mc 10.21 | Time Elapsed: 38.98 | 
+Early Stopping triggered based on lack of improvement in reservoir and biological losses.
+bio losses: 0.5817120573719722
+FINAL RESULTS  REP: 11.076888084411621, RESERVOIR LOSS: 0.0830283910036087, MEMORY FINGERPRINT: 10.417843316872371
+********* FOLD 3 *********
+Epoch: 0  |  cbt loss : 73.80 | reservoir loss : 0.0919 | bio loss : 0.82616 | total loss: 133.49 | median cbt mc 9.28 | Time Elapsed: 16.77 | 
+Epoch: 10  |  cbt loss : 46.38 | reservoir loss : 0.0911 | bio loss : 0.83455 | total loss: 106.33 | median cbt mc 9.28 | Time Elapsed: 41.51 | 
+Epoch: 20  |  cbt loss : 27.55 | reservoir loss : 0.0909 | bio loss : 0.58872 | total loss: 75.17 | median cbt mc 10.26 | Time Elapsed: 47.97 | 
+Epoch: 30  |  cbt loss : 20.16 | reservoir loss : 0.0908 | bio loss : 0.60708 | total loss: 68.68 | median cbt mc 9.93 | Time Elapsed: 50.63 | 
+Epoch: 40  |  cbt loss : 16.92 | reservoir loss : 0.0908 | bio loss : 0.61404 | total loss: 65.78 | median cbt mc 10.25 | Time Elapsed: 42.17 | 
+Epoch: 50  |  cbt loss : 14.86 | reservoir loss : 0.0908 | bio loss : 0.61774 | total loss: 63.91 | median cbt mc 10.27 | Time Elapsed: 47.96 | 
+Epoch: 60  |  cbt loss : 13.94 | reservoir loss : 0.0908 | bio loss : 0.60016 | total loss: 62.10 | median cbt mc 10.26 | Time Elapsed: 42.05 | 
+Epoch: 70  |  cbt loss : 13.17 | reservoir loss : 0.0908 | bio loss : 0.61456 | total loss: 62.06 | median cbt mc 10.26 | Time Elapsed: 43.02 | 
+Epoch: 80  |  cbt loss : 12.55 | reservoir loss : 0.0908 | bio loss : 0.74047 | total loss: 67.73 | median cbt mc 9.39 | Time Elapsed: 40.43 | 
+Epoch: 90  |  cbt loss : 12.17 | reservoir loss : 0.0908 | bio loss : 0.60361 | total loss: 60.50 | median cbt mc 10.26 | Time Elapsed: 40.31 | 
+Epoch: 100  |  cbt loss : 11.90 | reservoir loss : 0.0908 | bio loss : 0.59032 | total loss: 59.58 | median cbt mc 10.27 | Time Elapsed: 68.23 | 
+Epoch: 110  |  cbt loss : 11.70 | reservoir loss : 0.0908 | bio loss : 0.60705 | total loss: 60.21 | median cbt mc 10.26 | Time Elapsed: 39.05 | 
+Epoch: 120  |  cbt loss : 11.55 | reservoir loss : 0.0908 | bio loss : 0.62092 | total loss: 60.75 | median cbt mc 10.24 | Time Elapsed: 38.52 | 
+Epoch: 130  |  cbt loss : 11.44 | reservoir loss : 0.0908 | bio loss : 0.58706 | total loss: 58.95 | median cbt mc 10.25 | Time Elapsed: 38.77 | 
+Epoch: 140  |  cbt loss : 11.37 | reservoir loss : 0.0908 | bio loss : 0.61276 | total loss: 60.16 | median cbt mc 10.25 | Time Elapsed: 66.94 | 
+Epoch: 150  |  cbt loss : 11.30 | reservoir loss : 0.0908 | bio loss : 0.60670 | total loss: 59.79 | median cbt mc 10.25 | Time Elapsed: 70.44 | 
+Epoch: 160  |  cbt loss : 11.26 | reservoir loss : 0.0908 | bio loss : 0.61671 | total loss: 60.25 | median cbt mc 10.26 | Time Elapsed: 138.66 | 
+CBT loss has converged.
+Epoch: 170  |  cbt loss : 11.23 | reservoir loss : 0.0908 | bio loss : 0.62002 | total loss: 60.38 | median cbt mc 10.27 | Time Elapsed: 75.75 | 
+CBT loss has converged.
+Epoch: 180  |  cbt loss : 11.23 | reservoir loss : 0.0908 | bio loss : 0.58744 | total loss: 58.75 | median cbt mc 10.23 | Time Elapsed: 39.19 | 
+CBT loss has converged.
+Epoch: 190  |  cbt loss : 11.23 | reservoir loss : 0.0908 | bio loss : 0.60673 | total loss: 59.72 | median cbt mc 10.25 | Time Elapsed: 38.49 | 
+CBT loss has converged.
+Epoch: 200  |  cbt loss : 11.23 | reservoir loss : 0.0908 | bio loss : 0.58351 | total loss: 58.56 | median cbt mc 10.27 | Time Elapsed: 38.75 | 
+CBT loss has converged.
+Epoch: 210  |  cbt loss : 11.23 | reservoir loss : 0.0908 | bio loss : 0.61034 | total loss: 59.90 | median cbt mc 10.25 | Time Elapsed: 35.45 | 
+CBT loss has converged.
+Epoch: 220  |  cbt loss : 11.23 | reservoir loss : 0.0908 | bio loss : 0.59607 | total loss: 59.19 | median cbt mc 10.25 | Time Elapsed: 34.49 | 
+CBT loss has converged.
+Epoch: 230  |  cbt loss : 11.23 | reservoir loss : 0.0908 | bio loss : 0.60597 | total loss: 59.68 | median cbt mc 10.26 | Time Elapsed: 33.92 | 
+Early Stopping triggered based on lack of improvement in reservoir and biological losses.
+bio losses: 0.6226011062154152
+FINAL RESULTS  REP: 11.226611137390137, RESERVOIR LOSS: 0.08302845060825348, MEMORY FINGERPRINT: 10.421586740465877
+********* FOLD 4 *********
+Epoch: 0  |  cbt loss : 92.32 | reservoir loss : 0.0901 | bio loss : 0.83182 | total loss: 151.94 | median cbt mc 9.26 | Time Elapsed: 14.09 | 
+Epoch: 10  |  cbt loss : 66.63 | reservoir loss : 0.0895 | bio loss : 0.84154 | total loss: 126.60 | median cbt mc 9.26 | Time Elapsed: 34.73 | 
+Epoch: 20  |  cbt loss : 46.31 | reservoir loss : 0.0893 | bio loss : 0.77736 | total loss: 103.04 | median cbt mc 9.29 | Time Elapsed: 35.82 | 
+Epoch: 30  |  cbt loss : 33.74 | reservoir loss : 0.0892 | bio loss : 0.76039 | total loss: 89.60 | median cbt mc 9.35 | Time Elapsed: 33.80 | 
+Epoch: 40  |  cbt loss : 25.23 | reservoir loss : 0.0892 | bio loss : 0.58163 | total loss: 72.14 | median cbt mc 10.23 | Time Elapsed: 33.96 | 
+Epoch: 50  |  cbt loss : 18.23 | reservoir loss : 0.0892 | bio loss : 0.59795 | total loss: 65.96 | median cbt mc 9.97 | Time Elapsed: 33.82 | 
+Epoch: 60  |  cbt loss : 13.29 | reservoir loss : 0.0892 | bio loss : 0.58642 | total loss: 60.45 | median cbt mc 10.26 | Time Elapsed: 33.40 | 
+Epoch: 70  |  cbt loss : 12.49 | reservoir loss : 0.0892 | bio loss : 0.60050 | total loss: 60.35 | median cbt mc 10.26 | Time Elapsed: 33.73 | 
+Epoch: 80  |  cbt loss : 11.96 | reservoir loss : 0.0892 | bio loss : 0.57711 | total loss: 58.65 | median cbt mc 10.26 | Time Elapsed: 33.10 | 
+Epoch: 90  |  cbt loss : 11.63 | reservoir loss : 0.0892 | bio loss : 0.56877 | total loss: 57.90 | median cbt mc 10.26 | Time Elapsed: 34.76 | 
+Epoch: 100  |  cbt loss : 11.45 | reservoir loss : 0.0892 | bio loss : 0.57155 | total loss: 57.86 | median cbt mc 10.25 | Time Elapsed: 34.32 | 
+Epoch: 110  |  cbt loss : 11.36 | reservoir loss : 0.0892 | bio loss : 0.60258 | total loss: 59.32 | median cbt mc 10.26 | Time Elapsed: 36.34 | 
+Epoch: 120  |  cbt loss : 11.31 | reservoir loss : 0.0892 | bio loss : 0.60106 | total loss: 59.20 | median cbt mc 10.26 | Time Elapsed: 33.59 | 
+Epoch: 130  |  cbt loss : 11.29 | reservoir loss : 0.0892 | bio loss : 0.59266 | total loss: 58.75 | median cbt mc 10.26 | Time Elapsed: 33.60 | 
+CBT loss has converged.
+Epoch: 140  |  cbt loss : 11.27 | reservoir loss : 0.0892 | bio loss : 0.57908 | total loss: 58.05 | median cbt mc 10.25 | Time Elapsed: 33.50 | 
+CBT loss has converged.
+Epoch: 150  |  cbt loss : 11.27 | reservoir loss : 0.0892 | bio loss : 0.59452 | total loss: 58.82 | median cbt mc 10.26 | Time Elapsed: 33.71 | 
+CBT loss has converged.
+Epoch: 160  |  cbt loss : 11.27 | reservoir loss : 0.0892 | bio loss : 0.58587 | total loss: 58.39 | median cbt mc 10.26 | Time Elapsed: 35.07 | 
+CBT loss has converged.
+Epoch: 170  |  cbt loss : 11.27 | reservoir loss : 0.0892 | bio loss : 0.57180 | total loss: 57.69 | median cbt mc 10.26 | Time Elapsed: 34.50 | 
+CBT loss has converged.
+Epoch: 180  |  cbt loss : 11.27 | reservoir loss : 0.0892 | bio loss : 0.58267 | total loss: 58.23 | median cbt mc 10.25 | Time Elapsed: 33.75 | 
+CBT loss has converged.
+Epoch: 190  |  cbt loss : 11.27 | reservoir loss : 0.0892 | bio loss : 0.58819 | total loss: 58.51 | median cbt mc 10.26 | Time Elapsed: 33.70 | 
+CBT loss has converged.
+Epoch: 200  |  cbt loss : 11.27 | reservoir loss : 0.0892 | bio loss : 0.58665 | total loss: 58.43 | median cbt mc 10.23 | Time Elapsed: 33.16 | 
+Early Stopping triggered based on lack of improvement in reservoir and biological losses.
+bio losses: 0.5876164962108243
+FINAL RESULTS  REP: 11.265351295471191, RESERVOIR LOSS: 0.08302842825651169, MEMORY FINGERPRINT: 10.418064410484861

@@ -41,6 +41,10 @@ CONV2 = 24
 CONV3 = 5
 
 lambda_w_out = 200
+lambda1 = 300
+lambda2 = 10
+patience = 3
+
 
 #----------------------------------------------------------------------------#
 #----------------------------------------------------------------------------#
@@ -86,5 +90,7 @@ MODEL_PARAMS = {
         
         "Linear3" : {"in": N_views, "out": CONV2*CONV3},
         "conv3": {"in" : CONV2, "out": CONV3},
-        "lambda_w_out": lambda_w_out,
+        "lambda1" : lambda1,
+        "lambda2" : lambda2,
+        "patience" : patience,
     }

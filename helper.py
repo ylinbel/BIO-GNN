@@ -1,8 +1,8 @@
 from sklearn.model_selection import KFold
-from sklearn.metrics import mean_absolute_error
 from scipy.stats import pearsonr
 import torch
 from torch_geometric.data import Data
+from torch.nn.functional import mse_loss
 import numpy as np
 import os
 from echoes import ESNRegressor
@@ -181,7 +181,46 @@ def generate_data(time_steps=5010, delay_range=(5, 40), check=False):
     X_test = X_test[:-5]
     X_train = X_train[:-5]
 
-    return X_train, Y_train, X_test, Y_test
+    return {
+        "X_train": X_train,
+        "Y_train": Y_train,
+        "X_test": X_test,
+        "Y_test": Y_test,
+    }
+
+
+def generate_data_tensor(time_steps=5010, delay_range=(5, 40), check=False):
+
+    input_sequence = np.random.uniform(-0.5, 0.5, time_steps)
+    if check: 
+        print(np.random.get_state()[1][0])
+    input_sequence_2D = input_sequence.reshape(-1, 1)
+
+    X_train = input_sequence_2D[:4005] 
+    X_test = input_sequence_2D[4005:] 
+
+    Y_train = np.zeros((4005, delay_range[1] - delay_range[0]))
+    Y_test = np.zeros((1005, delay_range[1] - delay_range[0]))
+
+    # slide the sequence
+    for i in range(delay_range[0], delay_range[1]):
+        for j in range(4005):
+            Y_train[j, i - (delay_range[0])] = X_train[j-i] if j-i >= 0 else 0
+        for j in range(1005):
+            Y_test[j, i - delay_range[0]] = X_test[j-i] if j-i >= 0 else 0
+            
+    Y_test = Y_test[5:]
+    Y_train = Y_train[5:]
+    X_test = X_test[:-5]
+    X_train = X_train[:-5]
+    
+    X_train_tensor = torch.from_numpy(X_train)
+    Y_train_tensor = torch.from_numpy(Y_train)
+    X_test_tensor = torch.from_numpy(X_test)
+    Y_test_tensor = torch.from_numpy(Y_test)
+    
+    return X_train_tensor, Y_train_tensor, X_test_tensor, Y_test_tensor
+
 
 # def memory_capacity_culsum(y_true, y_pred, msg=False):
 #     if y_true.shape != y_pred.shape:
@@ -224,23 +263,62 @@ def memory_capacity_cul_sum(y_true, y_pred, msg=False):
 
     return cumulative_capacity
 
-# def generate_fingerprint(edge_index, spectral_radius=0.99, input_scaling=1e-6, leak_rate=1, bias=0, n_transient=100):
-#     x_train, y_train, x_test, y_target = generate_data()
+
+def memory_capacity_cul_sum_mse(y_true, y_pred, msg=False):
+    if y_true.shape != y_pred.shape:
+        raise ValueError("The shape of y_true and y_pred must be the same.")
+
+    time_lags = y_true.shape[1]
+    cumulative_capacity = 0.0
+
+    for i in range(time_lags):
+        true_values = y_true[:, i]
+        predicted_values = y_pred[:, i]
+        # MSE loss for each time lag
+        loss = torch.nn.functional.mse_loss(predicted_values, true_values)
+        cumulative_capacity += loss.item()  # Sum up MSE loss values
+
+        if msg:
+            print(f"MSE loss at time lag {i+1}: {loss.item()}")
+
+    return cumulative_capacity
+
+
+# def pearson_correlation_coefficient(y_true, y_pred):
+#     """
+#     Calculate the Pearson correlation coefficient using PyTorch.
+#     """
+#     mean_y_true = torch.mean(y_true, dim=0)
+#     mean_y_pred = torch.mean(y_pred, dim=0)
+    
+#     y_true_centered = y_true - mean_y_true
+#     y_pred_centered = y_pred - mean_y_pred
+    
+#     r_num = torch.sum(y_true_centered * y_pred_centered, dim=0)
+#     r_den = torch.sqrt(torch.sum(y_true_centered ** 2, dim=0) * torch.sum(y_pred_centered ** 2, dim=0))
+    
+#     r = r_num / r_den
+    
+#     # Handle potential division by zero
+#     r = torch.where(torch.isnan(r), torch.zeros_like(r), r)
+    
+#     return r
+
+# def memory_capacity_cul_sum(y_true, y_pred, msg=False):
+#     if y_true.shape != y_pred.shape:
+#         raise ValueError("The shape of y_true and y_pred must be the same.")
+
+#     time_lags = y_true.shape[1]
+#     cumulative_capacity = 0.0
+    
+#     for i in range(time_lags):
+#         true_values = y_true[:, i]
+#         predicted_values = y_pred[:, i]
+#         r = pearson_correlation_coefficient(true_values.unsqueeze(1), predicted_values.unsqueeze(1))
+#         r_squared = r ** 2
+#         cumulative_capacity += r_squared.item()  # Convert to Python scalar
         
-#     esn = ESNRegressor(
-#         spectral_radius=spectral_radius,
-#         input_scaling=input_scaling,
-#         leak_rate=leak_rate,
-#         bias=bias,
-#         W=edge_index,
-#         n_transient=n_transient
-#     )
-        
-#     reservoir = esn.fit(X=x_train, y=y_train)
-#     y_out = esn.predict(x_test)
-#     W_out = reservoir.W_out_
-#     avg_mae = memory_capacity_cul_sum(y_target, y_out)
-         
-#     memory_capacity = 1 / avg_mae if avg_mae != 0 else float('inf')
-        
-#     return memory_capacity
+#         if msg:
+#             print(f"Memory capacity at time lag {i+1}: {r_squared.item()}")
+
+#     return cumulative_capacity
