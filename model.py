@@ -225,14 +225,21 @@ class DGN(torch.nn.Module):
         model_id = str(uuid.uuid4())
         with open(save_path + "model_params.txt", 'w') as f:
             print(model_params, file=f)
-        
+            
+        lambda_r = float(model_params["lambda_r"])
+        lambda_b = float(model_params["lambda_b"])
+        patience = model_params["patience"]
+        convergence_threshold = float(model_params["convergence_threshold"])
+        no_lambda_b = lambda_b == 0
+
+
         CBTs = []
         scores = []
         
         for i in range(n_folds):
             torch.cuda.empty_cache() 
             print("********* FOLD {} *********".format(i))
-            train_data, test_data, train_mean, train_std = helper.preprocess_data_array(X, number_of_folds=n_folds, current_fold_id=i)
+            train_data, test_data, train_mean, _ = helper.preprocess_data_array(X, number_of_folds=n_folds, current_fold_id=i)
             
             test_casted = [d.to(device) for d in helper.cast_data(test_data)]
             loss_weightes = torch.tensor(np.array(list((1 / train_mean) / np.max(1 / train_mean))*len(train_data)), dtype = torch.float32)
@@ -242,31 +249,13 @@ class DGN(torch.nn.Module):
             model = DGN(model_params)
             model = model.to(device)
             
-            
             # cbt loss stop training
             cbt_loss_history = []
             cbt_loss_converged = False
-            cbt_convergence_threshold = 0.01
-            cbt_patience = 3
-            min_reservoir_loss = float('inf')
-            min_bio_loss = float('inf')
-            
-            cbt_loss_weight = 1.0
-            reservoir_loss_weight = float(model_params["lambda1"])
-            prev_cbt_loss_avg = float('inf')
-            loss_weight_adjustment_factor = 5 
-            
+            min_reservoir_loss = min_bio_loss = prev_cbt_loss_avg = float('inf')
+                        
             # W_out loss setup
             reservoir_model = LinearRegressionModel(36, 35).to(device)
-            
-            # weight_params = [param for name, param in model.named_parameters() if 'weight' in name]
-            # reservoir_weight_params = [param for name, param in reservoir_model.named_parameters() if 'weight' in name]
-
-            # # Combine the weight parameters from both models
-            # optimizer_params = weight_params + reservoir_weight_params
-
-            # # Create the optimizer with the selected parameters
-            # optimizer = torch.optim.AdamW(optimizer_params, lr=model_params["learning_rate"], weight_decay=0.00)
             
             optimizer = torch.optim.AdamW(list(model.parameters()) + list(reservoir_model.parameters()), lr=model_params["learning_rate"], weight_decay= 0.00)
 
@@ -285,14 +274,11 @@ class DGN(torch.nn.Module):
             for epoch in range(n_max_epochs):
                 model.train()
                 
-                cbt_losses = [] 
-                bio_losses = [0]
-                total_losses = []
-                curr_loss = 0
+                losses = []
+                cbt_losses, bio_losses = [], [0]
                 
                 for data in train_casted:
-                    # loss of cbt
-                    #Compose Dissimilarity matrix from network outputs
+                    # Compose Dissimilarity matrix from network outputs
                     cbt = model(data)
                     views_sampled = random.sample(targets, random_sample_size)
                     sampled_targets = torch.cat(views_sampled, axis = 2).permute((2,1,0))
@@ -300,10 +286,11 @@ class DGN(torch.nn.Module):
                     diff = torch.abs(expanded_cbt - sampled_targets) #Absolute difference
                     sum_of_all = torch.mul(diff, diff).sum(axis = (1,2)) #Sum of squares
                     l = torch.sqrt(sum_of_all)  #Square root of the sum
+                    
+                    # loss of cbt
                     cbt_loss = (l * loss_weightes[:random_sample_size * model_params["n_attr"]]).mean()
                     cbt_losses.append(cbt_loss.item())
-                    
-                    
+
                     # loss of reservoir
                     cbt_normalized = helper.normalize_matrix(cbt.cpu().detach().numpy())
                     esn = ESNRegressor(
@@ -317,41 +304,35 @@ class DGN(torch.nn.Module):
                     esn.fit(X=train_reservoir_data["X_train"], y=train_reservoir_data["Y_train"])
                     
                     reservoir_output = reservoir_model(torch.tensor(esn.full_states_, dtype=torch.float32, requires_grad=True))
-                    
-                    # print("predicted", reservoir_output)
-                    # print("actual", train_reservoir_data["Y_train"])
-                    
-                    # input_tensor = torch.tensor(esn.full_states_, dtype=torch.float32, requires_grad=True)
-                    # hook = input_tensor.register_hook(DGN.print_grad)
-                    # reservoir_output = reservoir_model(input_tensor)
-
                     reservoir_loss = torch.mean((reservoir_output - torch.tensor(train_reservoir_data["Y_train"], dtype=torch.float32, device=device)) ** 2)
-                    # print("reservoir_output", reservoir_output.shape)
-                    # print("full_states_", esn.full_states_.shape)
-                    # print("y_pred", train_reservoir_data["Y_train"].shape)
                     
                     if not cbt_loss_converged:
-                        curr_loss = cbt_loss_weight * cbt_loss + reservoir_loss_weight * reservoir_loss
-                        # print("reservoir_loss", reservoir_loss_weight * reservoir_loss)
+                        curr_loss = cbt_loss + lambda_r * reservoir_loss
                     else:
-                        curr_loss = reservoir_loss_weight * reservoir_loss
-                        # print("reservoir_loss", reservoir_loss_weight * reservoir_loss)
+                        curr_loss = lambda_r * reservoir_loss   
                         
-                                        
-            	#Backprob                
+                    if not no_lambda_b:       
+                        curr_loss += lambda_b * bio_losses[-1]
+                    losses.append(curr_loss)                    
+
                 avg_cbt_loss = sum(cbt_losses) / len(cbt_losses)
                 cbt_loss_history.append(avg_cbt_loss)
-                if len(cbt_loss_history) > model_params["patience"]:
-                    recent_cbt_loss_improvement = cbt_loss_history[-cbt_patience] - cbt_loss_history[-1]
-                    if recent_cbt_loss_improvement < cbt_convergence_threshold:
+                if len(cbt_loss_history) > patience:
+                    recent_cbt_loss_improvement = cbt_loss_history[-patience] - cbt_loss_history[-1]
+                    if recent_cbt_loss_improvement < convergence_threshold:
                         cbt_loss_converged = True
                         
                 if avg_cbt_loss >= prev_cbt_loss_avg:
-                    reservoir_loss_weight *= loss_weight_adjustment_factor  # Increase reservoir loss weight
+                    lambda_r *= 5  # Increase reservoir loss weight
                 else:
-                    reservoir_loss_weight /= loss_weight_adjustment_factor
+                    lambda_r /= 5
                     
-                
+                #Backprob                
+                optimizer.zero_grad() 
+                curr_loss = torch.mean(torch.stack(losses))               
+                curr_loss.backward()                
+                optimizer.step()
+     
                 #Track the loss
                 if epoch % 10 == 0:
                     if cbt_loss_converged:
@@ -361,7 +342,10 @@ class DGN(torch.nn.Module):
                     reservoir_loss, median_fingerprint = DGN.reservoir_error(cbt, train_reservoir_data, return_fingerprint=True, reservoir_model=reservoir_model)
                     
                     #bio loss
-                    bio_loss = DGN.biological_loss(median_fingerprint, test_reservoir_data, test_casted)
+                    if no_lambda_b:
+                        bio_loss = 0
+                    else:
+                        bio_loss = DGN.biological_loss(median_fingerprint, test_reservoir_data, test_casted)
                     bio_losses.append(bio_loss)
                     
                     tock = time.time()
@@ -369,14 +353,14 @@ class DGN(torch.nn.Module):
                     tick = tock
                     rep_loss = float(rep_loss)
                     
-                    current_error = rep_loss + reservoir_loss * model_params["lambda1"] + bio_loss * model_params["lambda2"]
+                    current_error = rep_loss + reservoir_loss * lambda_r + bio_loss * lambda_b
                     test_errors.append(current_error)
                     print("Epoch: {}  |  cbt loss : {:.2f} | reservoir loss : {:.4f} | bio loss : {:.5f} | total loss: {:.2f} | median cbt mc {:.2f} | Time Elapsed: {:.2f} | ".format(epoch, rep_loss, reservoir_loss, bio_loss, current_error, median_fingerprint, time_elapsed))
                 
                     if cbt_loss_converged:
                         # Early stopping controls
                         bio_improved = False
-                        if bio_loss < min_bio_loss:
+                        if not no_lambda_b and bio_loss < min_bio_loss:
                             min_bio_loss = bio_loss
                             bio_improved = True
                         
@@ -397,28 +381,6 @@ class DGN(torch.nn.Module):
                         if no_improvement_count >= model_params["patience"]:
                             print("Early Stopping triggered based on lack of improvement in reservoir and biological losses.")
                             break
-                        
-                curr_loss += model_params["lambda2"] * bio_losses[-1]
-                total_losses.append(curr_loss)
-                
-                optimizer.zero_grad() 
-                curr_loss = torch.mean(torch.stack(total_losses))               
-                curr_loss.backward()                
-                optimizer.step()
-                
-            
-                # for name, param in reservoir_model.named_parameters():
-                #     if param.grad is not None:
-                #         print(f"{name} gradient norm: {param.grad.norm().item()}")
-                #     else:
-                #         print(f"{name} gradient: None")
-
-                
-                # for name, param in model.named_parameters():
-                #     if param.grad is not None:
-                #         print(f"{name} gradient: {param.grad.norm().item()}")
-                #     else:
-                #         print(f"{name} gradient: None")
                           
         	#Restore best model so far
             try:

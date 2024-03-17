@@ -40,10 +40,10 @@ CONV2 = 24
 #dimension of embeddings output by the third GDL layer (for each ROI)
 CONV3 = 5
 
-lambda_w_out = 200
-lambda1 = 300
-lambda2 = 10
+lambda_r = 300
+lambda_b = 10
 patience = 3
+convergence_threshold = 0.01
 
 
 #----------------------------------------------------------------------------#
@@ -90,7 +90,8 @@ MODEL_PARAMS = {
         
         "Linear3" : {"in": N_views, "out": CONV2*CONV3},
         "conv3": {"in" : CONV2, "out": CONV3},
-        "lambda1" : lambda1,
-        "lambda2" : lambda2,
+        "lambda_r" : lambda_r,
+        "lambda_b" : lambda_b,
         "patience" : patience,
+        "convergence_threshold" : convergence_threshold,
     }
