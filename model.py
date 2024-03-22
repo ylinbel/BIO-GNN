@@ -232,6 +232,7 @@ class DGN(torch.nn.Module):
         convergence_threshold = float(model_params["convergence_threshold"])
         no_lambda_b = lambda_b == 0
 
+        print("lambda r", lambda_r, "lambda b", lambda_b)
 
         CBTs = []
         scores = []
