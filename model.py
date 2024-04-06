@@ -22,7 +22,6 @@ torch.manual_seed(35813)
 torch.backends.cudnn.deterministic = True
 torch.backends.cudnn.benchmark = False
 MODEL_WEIGHT_BACKUP_PATH = "./output"
-DEEP_CBT_SAVE_PATH = "./output/deep_cbts"
 TEMP_FOLDER = "./temp"
 
 
@@ -231,6 +230,7 @@ class DGN(torch.nn.Module):
         patience = model_params["patience"]
         convergence_threshold = float(model_params["convergence_threshold"])
         no_lambda_b = lambda_b == 0
+        no_lambda_r = lambda_r == 0
 
         print("lambda r", lambda_r, "lambda b", lambda_b)
 
@@ -311,7 +311,7 @@ class DGN(torch.nn.Module):
                         curr_loss = cbt_loss + lambda_r * reservoir_loss
                     else:
                         curr_loss = lambda_r * reservoir_loss   
-                        
+                    
                     if not no_lambda_b:       
                         curr_loss += lambda_b * bio_losses[-1]
                     losses.append(curr_loss)                    
@@ -323,10 +323,11 @@ class DGN(torch.nn.Module):
                     if recent_cbt_loss_improvement < convergence_threshold:
                         cbt_loss_converged = True
                         
-                if avg_cbt_loss >= prev_cbt_loss_avg:
-                    lambda_r *= 5  # Increase reservoir loss weight
-                else:
-                    lambda_r /= 5
+                if not no_lambda_r:
+                    if avg_cbt_loss >= prev_cbt_loss_avg:
+                        lambda_r *= 5  # Increase reservoir loss weight
+                    else:
+                        lambda_r /= 5
                     
                 #Backprob                
                 optimizer.zero_grad() 
@@ -367,7 +368,7 @@ class DGN(torch.nn.Module):
                         
                         # Check for improvement in reservoir loss
                         reservoir_improved = False
-                        if reservoir_loss < min_reservoir_loss:
+                        if not no_lambda_r and reservoir_loss < min_reservoir_loss:
                             min_reservoir_loss = reservoir_loss
                             reservoir_improved = True
                         
@@ -379,13 +380,13 @@ class DGN(torch.nn.Module):
                             no_improvement_count += 1
 
                         # Early stopping based on lack of improvement in both losses
-                        if no_improvement_count >= model_params["patience"]:
+                        if no_improvement_count >= patience:
                             print("Early Stopping triggered based on lack of improvement in reservoir and biological losses.")
                             break
                           
         	#Restore best model so far
             try:
-                restore = "./temp/weight_" + model_id + "_" + str(min(test_errors))[:5] + ".model"
+                restore = "./temp/weight_" + model_id + "_" + str(min(test_errors))[:(patience-1)] + ".model"
                 model.load_state_dict(torch.load(restore))
             except:
                 pass
@@ -402,8 +403,6 @@ class DGN(torch.nn.Module):
         
             rep_loss = DGN.mean_frobenious_distance(cbt, test_casted)
             reservoir_loss, well_trained_memory_fingerprint = DGN.reservoir_error(cbt, test_reservoir_data, return_fingerprint=True)
-            bio_loss = DGN.biological_loss(well_trained_memory_fingerprint, test_reservoir_data, test_casted)
-            # bio_loss = DGN.biological_loss(median_cbt_fingerprint, test_reservoir_data, test_casted)
 
             cbt = cbt.cpu().numpy()
             CBTs.append(cbt)
