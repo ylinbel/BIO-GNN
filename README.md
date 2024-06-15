@@ -1,6 +1,6 @@
 # biological-inspired graph neural network (Bio-GNN)
 
-Please contact yijunlin0621@gmail.com for inquiries. Thanks. 
+Please contact yl6220@ic.ac.uk for inquiries. Thanks. 
 
 ![BIO-GNN pipeline](main_figure.jpg)
 
