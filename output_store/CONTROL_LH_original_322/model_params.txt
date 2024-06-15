@@ -1,1 +1,0 @@
-{'N_ROIs': 35, 'learning_rate': 0.001, 'n_attr': 6, 'Linear1': {'in': 6, 'out': 8}, 'conv1': {'in': 1, 'out': 8}, 'Linear2': {'in': 6, 'out': 64}, 'conv2': {'in': 8, 'out': 8}, 'Linear3': {'in': 6, 'out': 64}, 'conv3': {'in': 8, 'out': 8}, 'lambda_r': 0, 'lambda_b': 0, 'patience': 3, 'convergence_threshold': 0.01}

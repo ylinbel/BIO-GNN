@@ -31,7 +31,7 @@ n_folds = 5
 lr = 0.0005
 
 #Name of the model
-model_name = "DGN_TEST"
+model_name = "BIO-GNN DEMO"
 
 #dimension of embeddings output by the first GDL layer (for each ROI)
 CONV1 = 36

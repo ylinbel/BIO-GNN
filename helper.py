@@ -96,12 +96,17 @@ def preprocess_data_array(X, number_of_folds, current_fold_id):
     #Split train and test
     X_train = X[train_indices]
     X_test = X[test_indices]
+    
+    # validation split is set to 0.1
+    val_size = int(len(X_train) * 0.2)
+    X_val = X_train[:val_size]
+    X_train = X_train[val_size:]
+    
     train_channel_means = np.mean(X_train, axis=(0,1,2))
-    train_channel_std =   np.std(X_train, axis=(0,1,2))
-    return X_train, X_test, train_channel_means, train_channel_std
+    return X_train, X_val, X_test, train_channel_means
 
 
-#Create data objects  for the DGN
+#Create data objects  for the BIO-GNN
 #https://pytorch-geometric.readthedocs.io/en/latest/notes/introduction.html#data-handling-of-graphs
 def cast_data(array_of_tensors, subject_type = None, flat_mask = None):
     N_ROI = array_of_tensors[0].shape[0]
@@ -282,43 +287,3 @@ def memory_capacity_cul_sum_mse(y_true, y_pred, msg=False):
             print(f"MSE loss at time lag {i+1}: {loss.item()}")
 
     return cumulative_capacity
-
-
-# def pearson_correlation_coefficient(y_true, y_pred):
-#     """
-#     Calculate the Pearson correlation coefficient using PyTorch.
-#     """
-#     mean_y_true = torch.mean(y_true, dim=0)
-#     mean_y_pred = torch.mean(y_pred, dim=0)
-    
-#     y_true_centered = y_true - mean_y_true
-#     y_pred_centered = y_pred - mean_y_pred
-    
-#     r_num = torch.sum(y_true_centered * y_pred_centered, dim=0)
-#     r_den = torch.sqrt(torch.sum(y_true_centered ** 2, dim=0) * torch.sum(y_pred_centered ** 2, dim=0))
-    
-#     r = r_num / r_den
-    
-#     # Handle potential division by zero
-#     r = torch.where(torch.isnan(r), torch.zeros_like(r), r)
-    
-#     return r
-
-# def memory_capacity_cul_sum(y_true, y_pred, msg=False):
-#     if y_true.shape != y_pred.shape:
-#         raise ValueError("The shape of y_true and y_pred must be the same.")
-
-#     time_lags = y_true.shape[1]
-#     cumulative_capacity = 0.0
-    
-#     for i in range(time_lags):
-#         true_values = y_true[:, i]
-#         predicted_values = y_pred[:, i]
-#         r = pearson_correlation_coefficient(true_values.unsqueeze(1), predicted_values.unsqueeze(1))
-#         r_squared = r ** 2
-#         cumulative_capacity += r_squared.item()  # Convert to Python scalar
-        
-#         if msg:
-#             print(f"Memory capacity at time lag {i+1}: {r_squared.item()}")
-
-#     return cumulative_capacity
